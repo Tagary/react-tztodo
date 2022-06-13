@@ -1,59 +1,38 @@
 import axios from 'axios';
 import React from 'react';
-import { Table } from 'react-bootstrap';
+import { Pagination, Table } from 'react-bootstrap';
 import { ITable } from '../types/types';
+import dataTodo from '../testingArray/db.json';
 
 const TableComponet = () => {
-  const tableInfo = [
-    {
-      id: 1,
-      data: '21.01.1997',
-      name: 'FirstName',
-      amount: 27,
-      distance: 1000,
-    },
-    {
-      id: 2,
-      data: '25.02.1997',
-      name: 'SecondName',
-      amount: 112,
-      distance: 12,
-    },
-    {
-      id: 3,
-      data: '28.08.1997',
-      name: 'ThirdName',
-      amount: 27,
-      distance: 32,
-    },
-    {
-      id: 4,
-      data: '21.10.1997',
-      name: 'FourthName',
-      amount: 76,
-      distance: 38,
-    },
-    {
-      id: 5,
-      data: '21.11.1997',
-      name: 'FivthName',
-      amount: 44,
-      distance: 258923,
-    },
-    {
-      id: 6,
-      data: '21.03.1997',
-      name: 'SixName',
-      amount: 54,
-      distance: 3999,
-    },
-  ];
-
+  const tableInfo = dataTodo;
   const [value, setValue] = React.useState('');
   const [firstDropDown, setFirstDropDown] = React.useState<string>('Name');
   const [secondDropDown, setSecondDropDown] = React.useState<string>('Equals');
   const [dataSource, setDataSource] = React.useState(tableInfo);
   const [tableFilter, setTableFilter] = React.useState<ITable[] | any[]>([]);
+  const [currentPage, setCurrentPage] = React.useState<number>(1);
+  const [todosPage] = React.useState<number>(5);
+  const pageNumbers = [];
+  const totalTodo = tableInfo.length;
+
+  // PostgreSQL did't work
+  // React.useEffect(() => {
+  //   async function fetchTakeTodo() {
+  //     try {
+  //       const respons = await axios.get('');
+  //       setDataSource(respons.data);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  //   fetchTakeTodo();
+  // });
+  React.useEffect(() => {}, [tableInfo]);
+
+  const indexLastTodo = currentPage * todosPage;
+  const indexFirstTodo = indexLastTodo - todosPage;
+  const currentTodo = dataSource.slice(indexFirstTodo, indexLastTodo);
 
   const handlerFirstDropDown = (e: { target: HTMLSelectElement }) => {
     setFirstDropDown(e.target.value);
@@ -62,6 +41,9 @@ const TableComponet = () => {
   const handleSecondDropDown = (e: { target: HTMLSelectElement }) => {
     setSecondDropDown(e.target.value);
   };
+  for (let i = 1; i <= Math.ceil(totalTodo / todosPage); i++) {
+    pageNumbers.push(i);
+  }
 
   const handleFilterData = (e: { target: HTMLInputElement }) => {
     if (e.target.value != '') {
@@ -69,7 +51,8 @@ const TableComponet = () => {
       if (secondDropDown == 'Equals') {
         switch (firstDropDown) {
           case 'Name':
-            const filterName = tableInfo.filter((info) => info.name == e.target.value);
+            const filterName = tableInfo.filter((info) => info.name == String(e.target.value));
+
             setTableFilter([...filterName]);
             break;
           case 'Amount':
@@ -151,8 +134,14 @@ const TableComponet = () => {
           default:
             break;
         }
+        for (let i = 1; i < Math.ceil(tableFilter.length / todosPage); i++) {
+          pageNumbers.push(i + 1);
+        }
       }
     } else {
+      for (let i = 1; i < Math.ceil(tableFilter.length / todosPage); i++) {
+        pageNumbers.push(i + 1);
+      }
       setValue(e.target.value);
       setDataSource([...dataSource]);
     }
@@ -199,7 +188,7 @@ const TableComponet = () => {
                   <td>{first.distance}</td>
                 </tr>
               ))
-            : dataSource.map((first) => (
+            : currentTodo.map((first) => (
                 <tr key={first.id}>
                   <td>{first.data}</td>
                   <td>{first.name}</td>
@@ -209,7 +198,17 @@ const TableComponet = () => {
               ))}
         </tbody>
       </Table>
-      <div className="pagination"></div>
+      <div>
+        <ul className="paginaton">
+          {value.length > 0
+            ? ''
+            : pageNumbers.map((numPage) => (
+                <li className="paginationLi" onClick={() => setCurrentPage(numPage)}>
+                  {numPage}
+                </li>
+              ))}
+        </ul>
+      </div>
     </div>
   );
 };

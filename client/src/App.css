@@ -1,0 +1,15 @@
+.search__input {
+  display: flex;
+  justify-content: end;
+}
+
+.paginaton {
+  display: inline-block;
+  list-style-type: none;
+}
+
+.paginationLi {
+  display: inline-block;
+  padding-right: 10px;
+  cursor: pointer;
+}
