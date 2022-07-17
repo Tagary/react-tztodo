@@ -1,7 +1,5 @@
 export interface ITable {
-    data: '';
-    id: number;
-    name: string;
+    title: string;
     amount: number;
     distance: number;
 }

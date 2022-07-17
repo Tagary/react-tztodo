@@ -1,11 +1,10 @@
-import axios from 'axios';
 import React from 'react';
 import { Pagination, Table } from 'react-bootstrap';
 import { ITable } from '../types/types';
-import dataTodo from '../testingArray/db.json';
+import axios from '../axios';
 
 const TableComponet = () => {
-  const tableInfo = dataTodo;
+  const [tableInfo, setTableInfo] = React.useState<ITable[] | any[]>([]);
   const [value, setValue] = React.useState('');
   const [firstDropDown, setFirstDropDown] = React.useState<string>('Name');
   const [secondDropDown, setSecondDropDown] = React.useState<string>('Equals');
@@ -16,19 +15,19 @@ const TableComponet = () => {
   const pageNumbers = [];
   const totalTodo = tableInfo.length;
 
-  // PostgreSQL did't work
-  // React.useEffect(() => {
-  //   async function fetchTakeTodo() {
-  //     try {
-  //       const respons = await axios.get('');
-  //       setDataSource(respons.data);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  //   fetchTakeTodo();
-  // });
-  React.useEffect(() => {}, [tableInfo]);
+  React.useEffect(() => {
+    async function fetchTakeTodo() {
+      try {
+        const respons = await axios.get('/information');
+        setTableInfo(respons.data);
+        setDataSource(respons.data);
+        console.log(tableInfo);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    fetchTakeTodo();
+  }, []);
 
   const indexLastTodo = currentPage * todosPage;
   const indexFirstTodo = indexLastTodo - todosPage;
@@ -181,17 +180,17 @@ const TableComponet = () => {
         <tbody>
           {value.length > 0
             ? tableFilter.map((first) => (
-                <tr key={first.id}>
+                <tr key={first._id}>
                   <td>{first.data}</td>
-                  <td>{first.name}</td>
+                  <td>{first.title}</td>
                   <td>{first.amount}</td>
                   <td>{first.distance}</td>
                 </tr>
               ))
             : currentTodo.map((first) => (
-                <tr key={first.id}>
+                <tr key={first._id}>
                   <td>{first.data}</td>
-                  <td>{first.name}</td>
+                  <td>{first.title}</td>
                   <td>{first.amount}</td>
                   <td>{first.distance}</td>
                 </tr>
